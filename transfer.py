@@ -4,7 +4,7 @@ import sqlite3
 from pathlib import Path
 
 import gspread
-import polars as pl
+import pandas as pd
 
 secrets_file = Path("client_secret.json")
 freqtrade_database = Path(Path.home(), "freqtrade", "tradesv3.sqlite")
@@ -108,14 +108,15 @@ def main():
             isolation_level=None,
             detect_types=sqlite3.PARSE_COLNAMES,
         )
-        db_df = pl.read_sql(sql="SELECT * FROM trades", connection_uri=conn)
-        db_df.write_csv("output.csv")
+
+        db_df = pd.read_sql_query("SELECT * FROM trades", conn)
+        db_df.to_csv("db.csv", index=False)
 
         client = gspread.service_account(filename=str(secrets_file))
         sheet = client.open("Cryptobot")
 
         worksheet = sheet.worksheet("binance-usdt-trades")
-        paste_csv("output.csv", worksheet, "A1")
+        paste_csv("db.csv", worksheet, "A1")
 
 
 if __name__ == "__main__":
