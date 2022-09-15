@@ -5,8 +5,7 @@ name = "pypi"
 
 [packages]
 gspread = "*"
-polars = "*"
-connectorx = "*"
+pandas = "*"
 
 [dev-packages]
 flake8 = "*"
