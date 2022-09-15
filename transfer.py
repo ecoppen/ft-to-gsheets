@@ -18,35 +18,6 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-def paste_csv(csv_file, sheet, cell):
-    if "!" in cell:
-        (tabName, cell) = cell.split("!")
-        wks = sheet.worksheet(tabName)
-    else:
-        wks = sheet.sheet1
-    (firstRow, firstColumn) = gspread.utils.a1_to_rowcol(cell)
-
-    with open(csv_file, "r") as f:
-        csv_contents = f.read()
-    body = {
-        "requests": [
-            {
-                "pasteData": {
-                    "coordinate": {
-                        "sheetId": wks.id,
-                        "rowIndex": firstRow - 1,
-                        "columnIndex": firstColumn - 1,
-                    },
-                    "data": csv_contents,
-                    "type": "PASTE_NORMAL",
-                    "delimiter": ",",
-                }
-            }
-        ]
-    }
-    return sheet.batch_update(body)
-
-
 def check_file_exists(file):
     return file.is_file()
 
@@ -110,13 +81,11 @@ def main():
         )
 
         db_df = pd.read_sql_query("SELECT * FROM trades", conn)
-        db_df.to_csv("db.csv", index=False)
+        db_list = db_df.values.tolist()
 
-        client = gspread.service_account(filename=str(secrets_file))
-        sheet = client.open("Cryptobot")
-
-        ws = sheet.worksheet("binance-usdt-trades")
-        paste_csv("db.csv", ws, "A1")
+        gc = gspread.service_account(filename=str(secrets_file))
+        wks = gc.open("binance-usdt-trades").sheet1
+        wks.update("A1", db_list)
 
 
 if __name__ == "__main__":
