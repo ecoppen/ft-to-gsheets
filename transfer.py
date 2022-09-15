@@ -7,7 +7,7 @@ import gspread
 import polars as pl
 
 secrets_file = Path("client_secret.json")
-freqtrade_database = Path(Path.home(), "freqtrade", "tradesv3.sqlite.db")
+freqtrade_database = Path(Path.home(), "freqtrade", "tradesv3.sqlite")
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -77,13 +77,12 @@ def check_database_connection(file):
 def initial_checks(google_file, freqtrade_file):
     if check_file_exists(google_file):
         if check_authorisation(google_file):
-            check_database_connection(freqtrade_file)
             if check_file_exists(freqtrade_file):
                 if check_database_connection(freqtrade_file):
                     return True
                 else:
                     log.error(
-                        f"This isn't a comptaible database file: {freqtrade_file}"
+                        f"This isn't a compatible database file: {freqtrade_file}"
                     )
             else:
                 log.error(
