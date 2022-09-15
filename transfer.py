@@ -115,8 +115,8 @@ def main():
         client = gspread.service_account(filename=str(secrets_file))
         sheet = client.open("Cryptobot")
 
-        worksheet = sheet.worksheet("binance-usdt-trades")
-        paste_csv("db.csv", worksheet, "A1")
+        ws = sheet.worksheet("binance-usdt-trades")
+        paste_csv("db.csv", ws, "A1")
 
 
 if __name__ == "__main__":
