@@ -63,7 +63,7 @@ def check_authorisation(file):
 def check_database_connection(file):
     try:
         sqlite3.connect(
-            f"file:/{file}?mode=ro",
+            f"file://{file}?mode=ro",
             uri=True,
             isolation_level=None,
             detect_types=sqlite3.PARSE_COLNAMES,
@@ -103,7 +103,7 @@ def main():
     if initial_checks(google_file=secrets_file, freqtrade_file=freqtrade_database):
 
         conn = sqlite3.connect(
-            f"file:/{freqtrade_database}?mode=ro",
+            f"file://{freqtrade_database}?mode=ro",
             uri=True,
             isolation_level=None,
             detect_types=sqlite3.PARSE_COLNAMES,
