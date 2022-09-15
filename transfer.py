@@ -1,12 +1,13 @@
 import logging
 import os
+import sqlite3
 from pathlib import Path
 
-import pygsheets
-import sqlalchemy as db
+import gspread
+import polars as pl
 
 secrets_file = Path("client_secret.json")
-freqtrade_database = Path(Path.home(), "freqtrade", "tradesv3.sqlite")
+freqtrade_database = Path(Path.home(), "freqtrade", "tradesv3.sqlite.db")
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -17,13 +18,42 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
+def paste_csv(csv_file, sheet, cell):
+    if "!" in cell:
+        (tabName, cell) = cell.split("!")
+        wks = sheet.worksheet(tabName)
+    else:
+        wks = sheet.sheet1
+    (firstRow, firstColumn) = gspread.utils.a1_to_rowcol(cell)
+
+    with open(csv_file, "r") as f:
+        csv_contents = f.read()
+    body = {
+        "requests": [
+            {
+                "pasteData": {
+                    "coordinate": {
+                        "sheetId": wks.id,
+                        "rowIndex": firstRow - 1,
+                        "columnIndex": firstColumn - 1,
+                    },
+                    "data": csv_contents,
+                    "type": "PASTE_NORMAL",
+                    "delimiter": ",",
+                }
+            }
+        ]
+    }
+    return sheet.batch_update(body)
+
+
 def check_file_exists(file):
     return file.is_file()
 
 
 def check_authorisation(file):
     try:
-        pygsheets.authorize(service_file=file)
+        gspread.service_account(filename=file)
         return True
     except ValueError as e:
         log.error(f"Loading {file} has failed: {e}")
@@ -32,11 +62,14 @@ def check_authorisation(file):
 
 def check_database_connection(file):
     try:
-        engine = db.create_engine(f"sqlite:///{file}.db?check_same_thread=false")
-        inspector = db.inspect(engine)
-        inspector.get_table_names()
+        sqlite3.connect(
+            f"file:/{file}?mode=ro",
+            uri=True,
+            isolation_level=None,
+            detect_types=sqlite3.PARSE_COLNAMES,
+        )
         return True
-    except db.exc.OperationalError as e:
+    except sqlite3.OperationalError as e:
         log.error(f"Loading {file} has failed: {e}")
     return False
 
@@ -69,15 +102,21 @@ def initial_checks(google_file, freqtrade_file):
 
 def main():
     if initial_checks(google_file=secrets_file, freqtrade_file=freqtrade_database):
-        client = pygsheets.authorize(service_file=secrets_file)
-        engine = db.create_engine(
-            f"sqlite:///{freqtrade_database}.db?check_same_thread=false"
+
+        conn = sqlite3.connect(
+            f"file:/{freqtrade_database}?mode=ro",
+            uri=True,
+            isolation_level=None,
+            detect_types=sqlite3.PARSE_COLNAMES,
         )
-        inspector = db.inspect(engine)
-        inspector.get_table_names()
-        sh = client.open("Cryptobot")
-        worksheet = sh.worksheet("title", "bi-usdt-trades")
-        sh.del_worksheet(worksheet)
+        db_df = pl.read_sql(sql="SELECT * FROM trades", connection_uri=conn)
+        db_df.write_csv("output.csv")
+
+        client = gspread.service_account(filename=str(secrets_file))
+        sheet = client.open("Cryptobot")
+
+        worksheet = sheet.worksheet("binance-usdt-trades")
+        paste_csv("output.csv", worksheet, "A1")
 
 
 if __name__ == "__main__":
