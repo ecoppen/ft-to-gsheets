@@ -84,7 +84,7 @@ def main():
         db_list = db_df.values.tolist()
 
         gc = gspread.service_account(filename=str(secrets_file))
-        wks = gc.open("binance-usdt-trades").sheet1
+        wks = gc.open("Cryptobot").worksheet("binance-usdt-trades")
         wks.update("A1", db_list)
 
 
