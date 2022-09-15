@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pygsheets
 import sqlalchemy as db
-from sqlalchemy import exc
 
 secrets_file = Path("client_secret.json")
 freqtrade_database = Path(Path.home(), "freqtrade", "tradesv3.sqlite")
@@ -34,9 +33,10 @@ def check_authorisation(file):
 def check_database_connection(file):
     try:
         engine = db.create_engine(f"sqlite:///{file}.db?check_same_thread=false")
-        engine.table_names()
+        inspector = db.inspect(engine)
+        inspector.get_table_names()
         return True
-    except exc.OperationalError as e:
+    except db.exc.OperationalError as e:
         log.error(f"Loading {file} has failed: {e}")
     return False
 
@@ -44,6 +44,7 @@ def check_database_connection(file):
 def initial_checks(google_file, freqtrade_file):
     if check_file_exists(google_file):
         if check_authorisation(google_file):
+            check_database_connection(freqtrade_file)
             if check_file_exists(freqtrade_file):
                 if check_database_connection(freqtrade_file):
                     return True
@@ -72,7 +73,8 @@ def main():
         engine = db.create_engine(
             f"sqlite:///{freqtrade_database}.db?check_same_thread=false"
         )
-        print(engine.table_names())
+        inspector = db.inspect(engine)
+        inspector.get_table_names()
         sh = client.open("Cryptobot")
         worksheet = sh.worksheet("title", "bi-usdt-trades")
         sh.del_worksheet(worksheet)
