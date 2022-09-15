@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 gspread = "*"
 polars = "*"
+connectorx = "*"
 
 [dev-packages]
 flake8 = "*"
