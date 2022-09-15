@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 gspread = "*"
 pandas = "*"
+numpy = "*"
 
 [dev-packages]
 flake8 = "*"
