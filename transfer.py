@@ -81,11 +81,11 @@ def main():
         )
 
         db_df = pd.read_sql_query("SELECT * FROM trades", conn)
-        db_list = db_df.values.tolist()
-
         gc = gspread.service_account(filename=str(secrets_file))
         wks = gc.open("Cryptobot").worksheet("binance-usdt-trades")
-        wks.update("A1", db_list)
+        db_headers = [db_df.columns.values.tolist()]
+        db_data = db_df.values.tolist()
+        wks.update("A1", db_headers + db_data)
 
 
 if __name__ == "__main__":
