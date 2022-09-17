@@ -91,14 +91,6 @@ def initial_checks(google_file, freqtrade_file):
     return False
 
 
-def strip_strings_in_list(base_list):
-    stripped_list = []
-    for sublist in base_list:
-        sublist = [data.strip(" '") for data in sublist if isinstance(data, str)]
-        stripped_list.append(sublist)
-    return stripped_list
-
-
 def main():
     if initial_checks(google_file=secrets_file, freqtrade_file=freqtrade_database):
 
@@ -114,8 +106,7 @@ def main():
         wks = gc.open(google_workbook_name).worksheet(google_workbook_sheet_name)
         wks.update(
             "A1",
-            [db_df.columns.values.tolist()]
-            + strip_strings_in_list(db_df.values.tolist()),
+            [db_df.columns.values.tolist()] + db_df.values.tolist(),
         )
 
 
