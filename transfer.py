@@ -105,8 +105,9 @@ def main():
         gc = gspread.service_account(filename=str(secrets_file))
         wks = gc.open(google_workbook_name).worksheet(google_workbook_sheet_name)
         wks.update(
-            "A1",
-            [db_df.columns.values.tolist()] + db_df.values.tolist(),
+            range_name="A1",
+            values=[db_df.columns.values.tolist()] + db_df.values.tolist(),
+            value_input_option="USER_ENTERED",
         )
 
 
