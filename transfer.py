@@ -94,7 +94,7 @@ def initial_checks(google_file, freqtrade_file):
 def format_pre_import(base_list):
     formatted_list = []
     for sublist in base_list:
-        sublist = ["-" for data in sublist if str(data) == "nan"]
+        sublist = ["-" if str(data) == "nan" else data for data in sublist]
         formatted_list.append(sublist)
     return formatted_list
 
