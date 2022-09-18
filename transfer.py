@@ -91,6 +91,14 @@ def initial_checks(google_file, freqtrade_file):
     return False
 
 
+def format_pre_import(base_list):
+    formatted_list = []
+    for sublist in base_list:
+        sublist = ["" for data in sublist if str(data) == "nan"]
+        formatted_list.append(sublist)
+    return formatted_list
+
+
 def main():
     if initial_checks(google_file=secrets_file, freqtrade_file=freqtrade_database):
 
@@ -106,7 +114,7 @@ def main():
         wks = gc.open(google_workbook_name).worksheet(google_workbook_sheet_name)
         wks.update(
             "A1",
-            [db_df.columns.values.tolist()] + db_df.values.tolist(),
+            [db_df.columns.values.tolist()] + format_pre_import(db_df.values.tolist()),
             value_input_option="USER_ENTERED",
         )
 
