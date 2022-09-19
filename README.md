@@ -30,3 +30,4 @@ A python (3.10+) script to transfer your trade data from a <a href="https://www.
 - Add line at bottom `3-59/5 * * * * /usr/local/bin/pipenv run python transfer.py`
 - `3-59/5 * * * *` means every 5 mins starting at minute 3, visit here to decide your own `https://crontab.guru/#3-59/5_*_*_*_*`
 - `/usr/local/bin/pipenv` is where pipenv can be found, type `which pipenv` to find your own
+- Install requirements to the pipenv `/usr/local/bin/pipenv install gspread pandas`
