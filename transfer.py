@@ -6,7 +6,7 @@ from pathlib import Path
 import gspread
 import pandas as pd
 
-secrets_file = Path("client_secret.json")
+secrets_file = Path(Path.home(), "ft-to-gsheets", "client_secret.json")
 freqtrade_database = Path(Path.home(), "freqtrade", "tradesv3.sqlite")
 google_workbook_name = ""
 google_workbook_sheet_name = ""
