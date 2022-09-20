@@ -7,6 +7,7 @@ import gspread
 import pandas as pd
 
 secrets_file = Path(Path.home(), "ft-to-gsheets", "client_secret.json")
+logs_file = Path(Path.home(), "ft-to-gsheets", "log.txt")
 freqtrade_database = Path(Path.home(), "freqtrade", "tradesv3.sqlite")
 google_workbook_name = ""
 google_workbook_sheet_name = ""
@@ -15,6 +16,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     level=os.environ.get("LOGLEVEL", "INFO"),
+    handlers=[logging.FileHandler(logs_file), logging.StreamHandler()],
 )
 
 log = logging.getLogger(__name__)
@@ -82,11 +84,11 @@ def initial_checks(google_file, freqtrade_file):
                 log.error("The Google Sheet has not been setup or referenced correctly")
         else:
             log.error(
-                "Please fix the client_secret.json file - https://pygsheets.readthedocs.io/en/latest/authorization.html"
+                "Please fix the json file with the client secret - https://pygsheets.readthedocs.io/en/latest/authorization.html"
             )
     else:
         log.error(
-            "Please create the client_secret.json file - https://pygsheets.readthedocs.io/en/latest/authorization.html"
+            "Please fix the json file with the client secret - https://pygsheets.readthedocs.io/en/latest/authorization.html"
         )
     return False
 
@@ -100,8 +102,9 @@ def format_pre_import(base_list):
 
 
 def main():
+    log.info("Starting transfer")
     if initial_checks(google_file=secrets_file, freqtrade_file=freqtrade_database):
-
+        log.info("Checks passed")
         conn = sqlite3.connect(
             f"file://{freqtrade_database}?mode=ro",
             uri=True,
@@ -117,6 +120,7 @@ def main():
             [db_df.columns.values.tolist()] + format_pre_import(db_df.values.tolist()),
             value_input_option="USER_ENTERED",
         )
+    log.info("Transfer complete")
 
 
 if __name__ == "__main__":
