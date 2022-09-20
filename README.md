@@ -27,7 +27,9 @@ A python (3.10+) script to transfer your trade data from a <a href="https://www.
 ### How to run on cron
 
 - Edit cron `crontab -e`
-- Add line at bottom `3-59/5 * * * * /usr/local/bin/pipenv run python transfer.py`
-- `3-59/5 * * * *` means every 5 mins starting at minute 3, visit here to decide your own `https://crontab.guru/#3-59/5_*_*_*_*`
-- `/usr/local/bin/pipenv` is where pipenv can be found, type `which pipenv` to find your own
+- Add line at bottom `3-59/5 * * * * /bin/bash -c "/root/ft-to-gsheets/transfer.sh"`
+- `3-59/5 * * * *` means every 5 minutes starting at minute 3, visit here to decide your own `https://crontab.guru/#3-59/5_*_*_*_*`
 - Install requirements to the pipenv `/usr/local/bin/pipenv install gspread pandas`
+- `/usr/local/bin/pipenv` is where pipenv can be found, type `which pipenv` to find your own
+- Make the shell script executable `chmod +x /root/ft-to-gsheets/transfer.sh`
+- Edit the `transfer.sh` script as necessary if you have moved/changed the directory structure
