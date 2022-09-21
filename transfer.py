@@ -115,6 +115,7 @@ def main():
         db_df = pd.read_sql_query("SELECT * FROM trades", conn)
         gc = gspread.service_account(filename=str(secrets_file))
         wks = gc.open(google_workbook_name).worksheet(google_workbook_sheet_name)
+        wks.clear()
         wks.update(
             "A1",
             [db_df.columns.values.tolist()] + format_pre_import(db_df.values.tolist()),
