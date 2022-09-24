@@ -8,6 +8,7 @@ import pandas as pd
 
 secrets_file = Path(Path.home(), "ft-to-gsheets", "client_secret.json")
 logs_file = Path(Path.home(), "ft-to-gsheets", "log.txt")
+logs_file.touch(exist_ok=True)
 freqtrade_database = Path(Path.home(), "freqtrade", "tradesv3.sqlite")
 google_workbook_name = ""
 google_workbook_sheet_name = ""
